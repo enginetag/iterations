@@ -1,144 +1,224 @@
 #include <iostream>
+#include <string>
+#include <vector>
+#include <algorithm>
+#include <functional>
+#include <stdexcept>
 
 using namespace std;
 
-class Element {
-public:
-    int value;
-    Element *next;
+// Внимание!
+// Вообще-то тесты так писать не принято. Потому что эта реализация на коленке (а) хрупкая и (б) много чего не умеет.
+// Сейчас всё же оставим так, чтобы вы могли всё это использовать, не разбираясь с дополнительными инструментами.
+// Но в реальном проекте используйте Boost.Test или gtest или ещё какой-нибудь аналог.
 
-    Element() {
-        value = 0;
-        next = NULL;
-    };
+// Подключите свой хэдер вместо VerySimpleList.h
+#include "List.h"
+// Вместо VerySimpleList укажите имя своего класса, который тестируем
+#define IMPL List
 
-};
+// Больше ничего править не требуется, просто соберитесь и запуститесь с этим main-ом с тестами
 
 
-class Container {
-public:
-    virtual void insert(int value) = 0;
+bool test1()
+{
+    int size = 10;
+    Container<int>* impl = new IMPL<int>();
+    bool test_ok = true;
 
-    virtual bool exists(int value) = 0;
-
-    virtual void remove(int value) = 0;
-
-    virtual void print() = 0;
-
-    virtual ~Container() {};
-};
-
-class List : public Container {
-private:
-    Element *root;
-
-    Element *create_list_element(int value) {
-        Element *elem = new Element();
-        elem->value = value;
-        elem->next = NULL;
-        return elem;
-    };
-
-    void insert_into_list(Element *root, Element *new_elem) {
-        new_elem->next = root->next;
-        root->next = new_elem;
-    };
-
-    void printer(struct Element *root) {
-        while (root != NULL) {
-            cout << root->value << endl;
-            root = root->next;
-        }
-    };
-
-    void delete_element(int value, Element *root) {
-        Element *cur_elem, *pre_elem;
-        pre_elem = root;
-        cur_elem = root;
-        while (cur_elem->value != value) {
-            if ((cur_elem->next == NULL) & (cur_elem->value != value)) {
-                return;
-            }
-            cur_elem = cur_elem->next;
-        }
-        while (pre_elem->next != cur_elem) {
-            pre_elem = pre_elem->next;
-        }
-        pre_elem->next = cur_elem->next;
-        delete cur_elem;
+    for(int i = 0; i < size; i++) {
+        impl->insert(i * i);
     }
 
-    void delete_list(Element *root) {
-        Element *cur_elem, *next_elem;
-        cur_elem = root;
-        while (cur_elem->next != NULL) {
-            next_elem = cur_elem->next;
-            delete cur_elem;
-            cur_elem = next_elem;
+    for(int i = 0; i < size; i++) {
+        if (!impl->exists(i * i)) {
+            test_ok = false;
         }
-        delete cur_elem;
-    }
-
-public:
-    List() {
-        this->root = NULL;
-    }
-
-    ~List() {
-        delete_list(root);
-    }
-
-    void insert(int value) {
-        if (root == NULL) {
-            root = create_list_element(value);
-        } else {
-            insert_into_list(root, create_list_element(value));
+        impl->remove(i * i);
+        if (impl->exists(i * i)) {
+            test_ok = false;
         }
     }
 
-    void print() {
-        printer(root);
+    delete impl;
+
+    cout << boolalpha << "Container<int> basic API works: " << test_ok << endl;
+    return test_ok;
+}
+
+bool test2()
+{
+    int size = 10;
+    Container<string>* impl = new IMPL<string>();
+    bool test_ok = true;
+
+    for(int i = 0; i < size; i++) {
+        string s = "a";
+        s[0] += i;
+        impl->insert(s);
     }
 
-    bool exists(int value) {
-        Element *cur_elem = root;
-        while (cur_elem->value != value) {
-            if (cur_elem->next == NULL) return false;
-            cur_elem = cur_elem->next;
+    for(int i = 0; i < size; i++) {
+        string s = "a";
+        s[0] += i;
+        if (!impl->exists(s)) {
+            test_ok = false;
         }
-        return true;
-    }
-
-    void remove(int value) {
-        if (value == root->value) {
-            Element *e = root;
-            root = root->next;
-            delete e;
-        } else {
-            delete_element(value, root);
+        impl->remove(s);
+        if (impl->exists(s)) {
+            test_ok = false;
         }
     }
-};
 
-int main() {
-    Container *c = new List();
+    delete impl;
 
-    for (int i = 1; i < 10; i++)
-        c->insert(i * i);
+    cout << boolalpha << "Container<string> basic API works: " << test_ok << endl;
+    return test_ok;
+}
 
-    cout << "Container after creation:" << endl;
-    c->print();
+bool test5()
+{
+    bool test_ok = true;
 
-    if (c->exists(25))
-        cout << "Search for value 25: found" << endl;
+    int size = 10;
 
-    if (!c->exists(111))
-        cout << "Search for value 111: not found" << endl;
+    IMPL<int> impl;
+    for(int i = 0; i < size; i++) {
+        impl.insert(i);
+    }
 
-    c->remove(25);
-    cout << "Container after deletion of the element:" << endl;
-    c->print();
+    cout << boolalpha << "Looking for non-existing element works: " << (!impl.exists(42)) << endl;
+    return test_ok;
+}
 
-    delete c;
+bool test6()
+{
+    bool test_ok = true;
+
+    int size = 10;
+
+    IMPL<int> impl;
+    for(int i = 0; i < size; i++) {
+        impl.insert(i);
+    }
+    impl.remove(42);
+
+    cout << boolalpha << "Calling remove() for non-existing element does not die: " << (test_ok) << endl;
+    return test_ok;
+}
+
+bool test7()
+{
+    bool test_ok = true;
+
+    IMPL<int> impl;
+    impl.exists(42);
+    impl.remove(42);
+
+    //vector<int> from_impl;
+    //for(const auto& el: impl)
+    //    from_impl.push_back(el);
+
+    cout << boolalpha << "Empty container does not die: " << (test_ok) << endl;
+    return test_ok;
+}
+
+bool test8()
+{
+    bool test_ok = true;
+
+    int size = 10;
+    vector<int> reference;
+    vector<int> from_impl;
+
+    IMPL<int> impl;
+    for(int i = 0; i < size; i++) {
+        impl.insert(i);
+        reference.push_back(i);
+    }
+
+    int to_delete = int(size / 2);
+    auto position = find(reference.begin(), reference.end(), to_delete);
+    reference.erase(position);
+    impl.remove(to_delete);
+
+    //for(const auto& el: impl)
+    //    from_impl.push_back(el);
+    //
+    //sort(reference.begin(), reference.end());
+    //sort(from_impl.begin(), from_impl.end());
+
+    for(int i = 0; i < size; i++) {
+        test_ok = test_ok && (i != to_delete ? impl.exists(i) : !impl.exists(i));
+    }
+
+    cout << boolalpha << "Elements are still reachable after remove(): " << (test_ok) << endl;
+    return test_ok;
+}
+
+bool test9()
+{
+    bool test_ok = true;
+
+    int size = 10;
+    vector<int> reference;
+    vector<int> from_impl;
+
+    IMPL<int> impl;
+    for(int i = 0; i < size; i++) {
+        impl.insert(i);
+        impl.insert(i);
+        impl.insert(i);
+        reference.push_back(i);
+        reference.push_back(i);
+        reference.push_back(i);
+    }
+
+    //for(const auto& el: impl)
+    //    from_impl.push_back(el);
+    //
+    //sort(reference.begin(), reference.end());
+    //sort(from_impl.begin(), from_impl.end());
+
+    cout << boolalpha << "Duplicate values are possible: " << (test_ok) << endl;
+    return test_ok;
+}
+
+bool test10()
+{
+    bool test_ok = true;
+
+    IMPL<int> impl1;
+    impl1.insert(42);
+    impl1.insert(0);
+    impl1.remove(42);
+
+    IMPL<int> impl2;
+    impl2.insert(0);
+    impl2.insert(42);
+    impl2.remove(42);
+
+    test_ok = (impl1.exists(0) && impl2.exists(0));
+
+    cout << boolalpha << "Removing head element probably works: " << (test_ok) << endl;
+    return test_ok;
+}
+
+int main()
+{
+    vector<function<bool(void)>> tests = {test1, test2, test5, test6, test7, test8, test9, test10};
+
+    bool verdict = true;
+
+    unsigned int count = 1;
+    for(auto test : tests) {
+        cout << count << ". ";
+        verdict = verdict && test();
+        count++;
+    }
+
+    cout << "=================================" << endl;
+    cout << "Run " << (count - 1) << " tests. Verdict: " << (verdict ? "PASSED" : "FAILED") << endl;
+
     return 0;
 }
