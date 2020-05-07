@@ -26,7 +26,7 @@ template<typename T>
 class Container {
 public:
     // Виртуальный деструктор
-    virtual ~Container(){}
+    virtual ~Container();
 
     /*
      * Виртуальные методы, должны быть реализованы вашим контейнером
