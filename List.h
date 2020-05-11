@@ -102,8 +102,12 @@ private:
             root->next = nullptr;
             return;
         }
-        new_elem->next = root->next;
-        root->next = new_elem;
+        auto cur_elem = root;
+        while (cur_elem->next != nullptr) {
+            cur_elem = cur_elem->next;
+        }
+        new_elem->next = nullptr;
+        cur_elem->next = new_elem;
     };
 
     void printer(struct Element<T> *root) {
