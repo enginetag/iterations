@@ -16,11 +16,15 @@ public:
     Element<T> *next;
 
     Element() : next(nullptr) {}
+
+    Element(T v) : value(v), next(nullptr) {}
+
+    Element(T v, Element<T> *n) : value(v), next(n) {}
 };
 
-class Exception: public runtime_error{
+class Exception : public runtime_error {
 public:
-    Exception() : runtime_error("segmentation_fault"){
+    Exception() : runtime_error("segmentation_fault") {
     }
 };
 
@@ -31,23 +35,23 @@ private:
 public:
     using iterator_category = forward_iterator_tag;
     using value_type = T;
-    using pointer = T*;
-    using reference = T&;
+    using pointer = T *;
+    using reference = T &;
     using difference_type = ptrdiff_t;
 
     ListIterator() : p(nullptr) {
     }
 
-    ListIterator(Element<T> *e) : p(e){ }
+    ListIterator(Element<T> *e) : p(e) {}
 
-    T& operator*() const {
+    T &operator*() const {
         if (p == nullptr)
             throw Exception();
         return p->value;
     }
 
     ListIterator &operator++() {
-        if (p == nullptr){
+        if (p == nullptr) {
             throw Exception();
         }
         p = p->next;
@@ -150,12 +154,24 @@ public:
         this->root = nullptr;
     }
 
-    List(const List &L) {
-        this->root = nullptr;
-        auto cur_elem = L.root;
-        while (cur_elem != nullptr) {
-            insert_into_list(this->root, create_list_element(cur_elem->value));
-            cur_elem = cur_elem->next;
+    List(const List &src) {
+//        this->root = nullptr;
+//        auto cur_elem = other.root;
+//        while (cur_elem != nullptr) {
+//            insert_into_list(this->root, create_list_element(cur_elem->value));
+//            cur_elem = cur_elem->next;
+//        }
+
+        Element<T>* p = nullptr;
+        for (auto t = src->root; t != nullptr; t = t->next) {
+            auto n = new Element<T>(t.value);
+            if(p!= nullptr) {
+                p->next = n;
+            }
+            else {
+                this->root = n;
+            }
+            p = n;
         }
     }
 
@@ -197,9 +213,9 @@ public:
 
     void insert(const T &value) override {
         if (root == nullptr) {
-            root = create_list_element(value);
+            root = new Element<T>(value);               // create_list_element(value);
         } else {
-            insert_into_list(root, create_list_element(value));
+            root = new Element<T>(value, root);         // insert_into_list(root, create_list_element(value));
         }
     }
 

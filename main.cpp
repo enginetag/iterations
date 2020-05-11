@@ -20,17 +20,16 @@ using namespace std;
 // Больше ничего править не требуется, просто соберитесь и запуститесь с этим main-ом с тестами
 
 
-bool test1()
-{
+bool test1() {
     int size = 10;
-    Container<int>* impl = new IMPL<int>();
+    Container<int> *impl = new IMPL<int>();
     bool test_ok = true;
 
-    for(int i = 0; i < size; i++) {
+    for (int i = 0; i < size; i++) {
         impl->insert(i * i);
     }
 
-    for(int i = 0; i < size; i++) {
+    for (int i = 0; i < size; i++) {
         if (!impl->exists(i * i)) {
             test_ok = false;
         }
@@ -46,19 +45,18 @@ bool test1()
     return test_ok;
 }
 
-bool test2()
-{
+bool test2() {
     int size = 10;
-    Container<string>* impl = new IMPL<string>();
+    Container<string> *impl = new IMPL<string>();
     bool test_ok = true;
 
-    for(int i = 0; i < size; i++) {
+    for (int i = 0; i < size; i++) {
         string s = "a";
         s[0] += i;
         impl->insert(s);
     }
 
-    for(int i = 0; i < size; i++) {
+    for (int i = 0; i < size; i++) {
         string s = "a";
         s[0] += i;
         if (!impl->exists(s)) {
@@ -76,8 +74,7 @@ bool test2()
     return test_ok;
 }
 
-bool test3()
-{
+bool test3() {
     bool test_ok = true;
 
     int size = 10;
@@ -85,12 +82,12 @@ bool test3()
     vector<int> from_impl;
 
     IMPL<int> impl;
-    for(int i = 0; i < size; i++) {
+    for (int i = 0; i < size; i++) {
         impl.insert(i);
         reference.push_back(i);
     }
 
-    for(const auto& el: impl)
+    for (const auto &el: impl)
         from_impl.push_back(el);
 
     sort(reference.begin(), reference.end());
@@ -100,37 +97,35 @@ bool test3()
     return test_ok;
 }
 
-bool test4()
-{
+bool test4() {
     bool test_ok = true;
 
     int size = 10;
     vector<int> from_impl;
 
     IMPL<int> impl;
-    for(int i = 0; i < size; i++) {
+    for (int i = 0; i < size; i++) {
         impl.insert(i);
     }
 
-    for(int i = 0; i < size; i++) {
+    for (int i = 0; i < size; i++) {
         impl.remove(i);
     }
 
-    for(const auto& el: impl)
+    for (const auto &el: impl)
         from_impl.push_back(el);
 
     cout << boolalpha << "Method remove() really removes: " << (from_impl.size() == 0) << endl;
     return test_ok;
 }
 
-bool test5()
-{
+bool test5() {
     bool test_ok = true;
 
     int size = 10;
 
     IMPL<int> impl;
-    for(int i = 0; i < size; i++) {
+    for (int i = 0; i < size; i++) {
         impl.insert(i);
     }
 
@@ -138,14 +133,13 @@ bool test5()
     return test_ok;
 }
 
-bool test6()
-{
+bool test6() {
     bool test_ok = true;
 
     int size = 10;
 
     IMPL<int> impl;
-    for(int i = 0; i < size; i++) {
+    for (int i = 0; i < size; i++) {
         impl.insert(i);
     }
     impl.remove(42);
@@ -154,8 +148,7 @@ bool test6()
     return test_ok;
 }
 
-bool test7()
-{
+bool test7() {
     bool test_ok = true;
 
     IMPL<int> impl;
@@ -163,15 +156,14 @@ bool test7()
     impl.remove(42);
 
     vector<int> from_impl;
-    for(const auto& el: impl)
+    for (const auto &el: impl)
         from_impl.push_back(el);
 
     cout << boolalpha << "Empty container does not die: " << (from_impl.size() == 0) << endl;
     return test_ok;
 }
 
-bool test8()
-{
+bool test8() {
     bool test_ok = true;
 
     int size = 10;
@@ -179,7 +171,7 @@ bool test8()
     vector<int> from_impl;
 
     IMPL<int> impl;
-    for(int i = 0; i < size; i++) {
+    for (int i = 0; i < size; i++) {
         impl.insert(i);
         reference.push_back(i);
     }
@@ -189,7 +181,7 @@ bool test8()
     reference.erase(position);
     impl.remove(to_delete);
 
-    for(const auto& el: impl)
+    for (const auto &el: impl)
         from_impl.push_back(el);
 
     sort(reference.begin(), reference.end());
@@ -199,8 +191,7 @@ bool test8()
     return test_ok;
 }
 
-bool test9()
-{
+bool test9() {
     bool test_ok = true;
 
     int size = 10;
@@ -208,7 +199,7 @@ bool test9()
     vector<int> from_impl;
 
     IMPL<int> impl;
-    for(int i = 0; i < size; i++) {
+    for (int i = 0; i < size; i++) {
         impl.insert(i);
         impl.insert(i);
         impl.insert(i);
@@ -217,7 +208,7 @@ bool test9()
         reference.push_back(i);
     }
 
-    for(const auto& el: impl)
+    for (const auto &el: impl)
         from_impl.push_back(el);
 
     sort(reference.begin(), reference.end());
@@ -227,8 +218,7 @@ bool test9()
     return test_ok;
 }
 
-bool test10()
-{
+bool test10() {
     bool test_ok = true;
 
     IMPL<int> impl1;
@@ -247,8 +237,7 @@ bool test10()
     return test_ok;
 }
 
-bool test11()
-{
+bool test11() {
     bool test_ok = true;
 
     IMPL<int> impl1;
@@ -256,7 +245,7 @@ bool test11()
     try {
         int a = *impl1.begin();
         a++;
-    } catch (const exception& e) {
+    } catch (const exception &e) {
         //
     }
 
@@ -264,8 +253,7 @@ bool test11()
     return test_ok;
 }
 
-bool test12()
-{
+bool test12() {
     bool test_ok = true;
 
     IMPL<int> impl1;
@@ -275,7 +263,7 @@ bool test12()
         impl1.begin()++;
         ++impl1.end();
         impl1.end()++;
-    } catch (const exception& e) {
+    } catch (const exception &e) {
         //
     }
 
@@ -283,8 +271,7 @@ bool test12()
     return test_ok;
 }
 
-bool test13()
-{
+bool test13() {
     bool test_ok = true;
 
     int size = 10;
@@ -292,9 +279,9 @@ bool test13()
     vector<int> from_impl;
 
     IMPL<int> impl1;
-    for(int i = 0; i < size; i++) {
+    for (int i = 0; i < size; i++) {
         impl1.insert(i);
-        reference.push_back(i);
+        // reference.push_back(i);
     }
 
     IMPL<int> impl2(impl1);
@@ -305,13 +292,13 @@ bool test13()
     sort(reference.begin(), reference.end());
 
     from_impl.clear();
-    for(const auto& el: impl2)
+    for (const auto &el: impl2)
         from_impl.push_back(el);
     sort(from_impl.begin(), from_impl.end());
     test_ok = test_ok && (from_impl == reference);
 
     from_impl.clear();
-    for(const auto& el: impl3)
+    for (const auto &el: impl3)
         from_impl.push_back(el);
     sort(from_impl.begin(), from_impl.end());
     test_ok = test_ok && (from_impl == reference);
@@ -320,12 +307,11 @@ bool test13()
     return test_ok;
 }
 
-bool test14()
-{
+bool test14() {
     int size = 10;
 
     IMPL<int> impl;
-    for(int i = 0; i < size; i++) {
+    for (int i = 0; i < size; i++) {
         impl.insert(i);
     }
 
@@ -336,15 +322,19 @@ bool test14()
     return test_ok;
 }
 
-int main()
-{
-    vector<function<bool(void)>> tests = {test1, test2, test3, test4, test5, test6, test7, test8, test9, test10,
-                                          test11, test12, test13, test14};
+int main() {
+    vector<function<bool(void)>> tests = //{test13};
+            {
+                    test1, test2, test3, test4,
+                    test5, test6, test7, test8,
+                    test9, test10, test11, test12,
+                    test13, test14
+            };
 
     bool verdict = true;
 
     unsigned int count = 1;
-    for(auto test : tests) {
+    for (auto test : tests) {
         cout << count << ". ";
         verdict = verdict && test();
         count++;
