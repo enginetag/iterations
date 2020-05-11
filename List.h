@@ -2,8 +2,8 @@
 // Created by admin on 07.05.2020.
 //
 
-#ifndef CLASS_D_LIST_H
-#define CLASS_D_LIST_H
+#ifndef LIST_H
+#define LIST_H
 
 #include <iostream>
 
@@ -15,22 +15,64 @@ public:
     T value;
     Element<T> *next;
 
-    Element() {
-        next = NULL;
-    };
-
+    Element() : next(nullptr) {}
 };
 
+class Exception: public runtime_error{
+public:
+    Exception() : runtime_error("segmentation_fault"){
+    }
+};
+
+template<typename T>
+class ListIterator {
+private:
+    Element<T> *p;
+public:
+    using iterator_category = forward_iterator_tag;
+    using value_type = T;
+    using pointer = T*;
+    using reference = T&;
+    using difference_type = ptrdiff_t;
+
+    ListIterator() : p(nullptr) {
+    }
+
+    ListIterator(Element<T> *e) : p(e){ }
+
+    T& operator*() const {
+        if (p == nullptr)
+            throw Exception();
+        return p->value;
+    }
+
+    ListIterator &operator++() {
+        if (p == nullptr){
+            throw Exception();
+        }
+        p = p->next;
+        return *this;
+    }
+
+    ListIterator operator++(int) {
+        p = p->next;
+        return *this;
+    }
+
+    bool operator==(const ListIterator &it) const {
+        return p == it.p;
+    }
+
+    bool operator!=(const ListIterator &it) const {
+        return !(*this == it);
+    }
+};
 
 template<typename T>
 class Container {
 public:
     // Виртуальный деструктор
-    virtual ~Container(){};
-
-    /*
-     * Виртуальные методы, должны быть реализованы вашим контейнером
-     */
+    virtual ~Container() = default;
 
     // Вставка элемента
     virtual void insert(const T &value) = 0;
@@ -48,19 +90,24 @@ private:
     Element<T> *root;
 
     Element<T> *create_list_element(const T &value) {
-        Element<T> *elem = new Element<T>();
+        auto *elem = new Element<T>();
         elem->value = value;
-        elem->next = NULL;
+        elem->next = nullptr;
         return elem;
     };
 
-    void insert_into_list(Element<T> *root, Element<T> *new_elem) {
+    void insert_into_list(Element<T> *&root, Element<T> *new_elem) {
+        if (root == nullptr) {
+            root = create_list_element(new_elem->value);
+            root->next = nullptr;
+            return;
+        }
         new_elem->next = root->next;
         root->next = new_elem;
     };
 
     void printer(struct Element<T> *root) {
-        while (root != NULL) {
+        while (root != nullptr) {
             cout << root->value << endl;
             root = root->next;
         }
@@ -71,7 +118,7 @@ private:
         pre_elem = root;
         cur_elem = root;
         while (cur_elem->value != value) {
-            if ((cur_elem->next == NULL) & (cur_elem->value != value)) {
+            if ((cur_elem->next == nullptr) & (cur_elem->value != value)) {
                 return;
             }
             cur_elem = cur_elem->next;
@@ -86,7 +133,11 @@ private:
     void delete_list(Element<T> *root) {
         Element<T> *cur_elem, *next_elem;
         cur_elem = root;
-        while (cur_elem->next != NULL) {
+        if (root == nullptr) {
+            delete root;
+            return;
+        }
+        while (cur_elem->next != nullptr) {
             next_elem = cur_elem->next;
             delete cur_elem;
             cur_elem = next_elem;
@@ -96,36 +147,83 @@ private:
 
 public:
     List() {
-        this->root = NULL;
+        this->root = nullptr;
+    }
+
+    List(const List &L) {
+        this->root = nullptr;
+        auto cur_elem = L.root;
+        while (cur_elem != nullptr) {
+            insert_into_list(this->root, create_list_element(cur_elem->value));
+            cur_elem = cur_elem->next;
+        }
+    }
+
+    using iterator = ListIterator<T>;
+    using const_iterator = ListIterator<const T>;
+
+    iterator begin() const {
+        return ListIterator<T>(root);
+    };
+
+    iterator end() const {
+        return ListIterator<T>(nullptr);
+    };
+
+    const_iterator cbegin() const {
+        return ListIterator<T>(root);
+    };
+
+    const_iterator cend() const {
+        return ListIterator<const T>(nullptr);
+    };
+
+    List &operator=(const List &L) {
+        if (this == &L) {
+            return *this;
+        }
+        delete this;
+        auto cur_elem = L.root;
+        while (cur_elem != nullptr) {
+            insert_into_list(root, create_list_element(cur_elem->value));
+            cur_elem = cur_elem->next;
+        }
+        return *this;
     }
 
     ~List() {
         delete_list(root);
     }
 
-    void insert(const T& value) override{
-        if (root == NULL) {
+    void insert(const T &value) override {
+        if (root == nullptr) {
             root = create_list_element(value);
         } else {
             insert_into_list(root, create_list_element(value));
         }
     }
 
-    void print(){
+    void print() {
         printer(root);
     }
 
-    bool exists(const T &value) const override{
+    bool exists(const T &value) const override {
         Element<T> *cur_elem = root;
+        if (root == nullptr) {
+            return false;
+        }
         while (cur_elem->value != value) {
-            if (cur_elem->next == NULL)
+            if (cur_elem->next == nullptr)
                 return false;
             cur_elem = cur_elem->next;
         }
         return true;
     }
 
-    void remove(const T &value) override{
+    void remove(const T &value) override {
+        if (root == nullptr) {
+            return;
+        }
         if (value == root->value) {
             Element<T> *e = root;
             root = root->next;
@@ -137,4 +235,4 @@ public:
 };
 
 
-#endif //CLASS_D_LIST_H
+#endif //LIST_H
