@@ -93,32 +93,7 @@ class List : public Container<T> {
 private:
     Element<T> *root;
 
-    // @Deprecated
-    Element<T> *create_list_element(const T &value) {
-        auto *elem = new Element<T>();
-        elem->value = value;
-        elem->next = nullptr;
-        return elem;
-    };
-
-    void insert_into_list(Element<T> *&root, Element<T> *new_elem) {
-        if (root == nullptr) {
-            root = create_list_element(new_elem->value);
-            root->next = nullptr;
-            return;
-        }
-        new_elem->next = root->next;
-        root->next = new_elem;
-    };
-
-    void printer(struct Element<T> *root) {
-        while (root != nullptr) {
-            cout << root->value << endl;
-            root = root->next;
-        }
-    };
-
-    void delete_element(const T &value, Element<T> *root) {
+    void delete_element(const T &value) {
         Element<T> *cur_elem, *pre_elem;
         pre_elem = root;
         cur_elem = root;
@@ -136,28 +111,20 @@ private:
     }
 
     void delete_list() {
-        Element<T> *cur_elem, *next_elem;
-        cur_elem = root;
-        if (root == nullptr) {
-            delete root;
-            return;
+        for (auto p = root; p != nullptr;) {
+            auto t = p;
+            p = p->next;
+            delete (t);
         }
-        while (cur_elem->next != nullptr) {
-            next_elem = cur_elem->next;
-            delete cur_elem;
-            cur_elem = next_elem;
-        }
-        delete cur_elem;
     }
 
     void copyOf(const List &src) {
-        Element<T>* p = nullptr;
+        Element<T> *p = nullptr;
         for (auto t = src.root; t != nullptr; t = t->next) {
             auto n = new Element<T>(t->value);
-            if(p!= nullptr) {
+            if (p != nullptr) {
                 p->next = n;
-            }
-            else {
+            } else {
                 this->root = n;
             }
             p = n;
@@ -213,10 +180,6 @@ public:
         }
     }
 
-    void print() {
-        printer(root);
-    }
-
     bool exists(const T &value) const override {
         Element<T> *cur_elem = root;
         if (root == nullptr) {
@@ -239,7 +202,7 @@ public:
             root = root->next;
             delete e;
         } else {
-            delete_element(value, root);
+            delete_element(value);
         }
     }
 };
