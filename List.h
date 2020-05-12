@@ -134,7 +134,7 @@ private:
         delete cur_elem;
     }
 
-    void delete_list(Element<T> *root) {
+    void delete_list() {
         Element<T> *cur_elem, *next_elem;
         cur_elem = root;
         if (root == nullptr) {
@@ -163,8 +163,9 @@ public:
 //        }
 
         Element<T>* p = nullptr;
-        for (auto t = src->root; t != nullptr; t = t->next) {
-            auto n = new Element<T>(t.value);
+
+        for (auto t = src.root; t != nullptr; t = t->next) {
+            auto n = new Element<T>(t->value);
             if(p!= nullptr) {
                 p->next = n;
             }
@@ -208,7 +209,7 @@ public:
     }
 
     ~List() {
-        delete_list(root);
+        delete_list();
     }
 
     void insert(const T &value) override {
