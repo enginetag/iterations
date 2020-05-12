@@ -281,6 +281,7 @@ bool test13() {
     IMPL<int> impl1;
     for (int i = 0; i < size; i++) {
         impl1.insert(i);
+        reference.push_back(i);
     }
 
     IMPL<int> impl2(impl1);
@@ -322,13 +323,13 @@ bool test14() {
 }
 
 int main() {
-    vector<function<bool(void)>> tests = {test13};
-//            {
-//                    test1, test2, test3, test4,
-//                    test5, test6, test7, test8,
-//                    test9, test10, test11, test12,
-//                    test13, test14
-//            };
+    vector<function<bool(void)>> tests = // {test13};
+            {
+                    test1, test2, test3, test4,
+                    test5, test6, test7, test8,
+                    test9, test10, test11, test12,
+                    test13, test14
+            };
 
     bool verdict = true;
 

@@ -93,6 +93,7 @@ class List : public Container<T> {
 private:
     Element<T> *root;
 
+    // @Deprecated
     Element<T> *create_list_element(const T &value) {
         auto *elem = new Element<T>();
         elem->value = value;
@@ -149,21 +150,8 @@ private:
         delete cur_elem;
     }
 
-public:
-    List() {
-        this->root = nullptr;
-    }
-
-    List(const List &src) {
-//        this->root = nullptr;
-//        auto cur_elem = other.root;
-//        while (cur_elem != nullptr) {
-//            insert_into_list(this->root, create_list_element(cur_elem->value));
-//            cur_elem = cur_elem->next;
-//        }
-
+    void copyOf(const List &src) {
         Element<T>* p = nullptr;
-
         for (auto t = src.root; t != nullptr; t = t->next) {
             auto n = new Element<T>(t->value);
             if(p!= nullptr) {
@@ -174,6 +162,15 @@ public:
             }
             p = n;
         }
+    }
+
+public:
+    List() {
+        this->root = nullptr;
+    }
+
+    List(const List &src) {
+        copyOf(src);
     }
 
     using iterator = ListIterator<T>;
@@ -187,24 +184,20 @@ public:
         return ListIterator<T>(nullptr);
     };
 
-    const_iterator cbegin() const {
+    const_iterator const_begin() const {
         return ListIterator<T>(root);
     };
 
-    const_iterator cend() const {
+    const_iterator const_end() const {
         return ListIterator<const T>(nullptr);
     };
 
-    List &operator=(const List &L) {
-        if (this == &L) {
+    List &operator=(const List &src) {
+        if (this == &src) {
             return *this;
         }
-        delete this;
-        auto cur_elem = L.root;
-        while (cur_elem != nullptr) {
-            insert_into_list(root, create_list_element(cur_elem->value));
-            cur_elem = cur_elem->next;
-        }
+        delete_list();
+        copyOf(src);
         return *this;
     }
 
